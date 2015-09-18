@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, user-scalable=no">
+  <title>Protractor2D</title>
+  <link rel="stylesheet" href="./style/main.css" type="text/css" media="all">
+  <script defer type="text/javascript" src="./js/swiper.js"></script>
+  <script defer type="text/javascript" src="./js/capture.js"></script>
+  <script defer type="text/javascript" src="./js/app.js"></script>
+</head>
+<body>
+  <div id="contentarea">
+  <video id="video">Video stream not available.</video>
+    <svg id="svg_area">
+      <defs>
+        <marker id="Triangle" viewBox="0 0 10 10"
+             refX="10" refY="5" markerWidth="12" markerHeight="12"
+             fill="#ff0" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" />
+        </marker>
+      </defs>
+      <!-- offsetY: 15px; -->
+      <line id="svg_Xaxis" x1="0" y1="15" x2="200" y2="15"
+          stroke="#0a0" stroke-width="2" />
+      <line id="svg_line" x1="0" y1="15" x2="100" y2="115"
+          stroke="#0a0" stroke-width="3" />
+      <circle id="svg_circle" cx="100" cy="115" r="15"
+          stroke="#0a0" stroke-width="6" fill="orange"/>
+      <rect id="svg_Xaxis_handle" x="-20" y="5" width="40" height="20" rx="6" ry="6"
+          stroke="#0a0" stroke-width="2" fill="transparent"/>
+      <path id="svg_arc" d="M 0,135 A 100,100 0 0,0 85,100"
+          stroke="#ff0" stroke-width="1" fill="transparent" marker-end="url(#Triangle)"/>
+    </svg>
+  </div>
+  <div id="controlarea">
+    <button id="pausebutton">Pause</button>
+    <span id="angleInfo">&#x2220;<span id="angleValue"></span>&#x00b0;</span>
+    <div id="footer">Protractor2D &copy; marsf.</div>
+  </div>
+  <div id="footer">Protractor2D &copy; marsf.</div>
+</body>
+</html>
