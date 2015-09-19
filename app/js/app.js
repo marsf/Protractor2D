@@ -80,23 +80,36 @@ function startup() {
   swipe.onswiped  = onSwipeEnd;
   swipe.start();
 
+  var windowSize = {
+    // Flame: W320xH539, Fx0: W360xH609 ?
+    w: window.innerWidth,
+    h: window.innerHeight,
+  };
+
+  adjustContentArea();
+  angleValueElement.textContent = svgLine.angle;
+
+  // Camera setup.
+  Capture.cameraStartup(windowSize);
+  pausebutton.addEventListener('click', toggleCameraStatus, false);
+
+}
+
+
+function adjustContentArea() {
   // Adjust content area.
   contentAreaPadding = parseInt(svgCircleElement.getAttribute('r'));
   contentAreaSize.w = contentareaElement.clientWidth * 0.9 - contentAreaPadding;
   contentAreaSize.h = contentareaElement.clientHeight - contentAreaPadding;
   contentAreaOffset.x = contentareaElement.offsetLeft;
   contentAreaOffset.y = contentareaElement.offsetTop + contentAreaPadding;
+  
+  // Adjust line positions.
   svgXaxisElement.setAttribute('x2', contentAreaSize.w);
   svgLine.offsetY = contentAreaPadding;
   svgLine.fromPos = [parseInt(svgLineElement.getAttribute('x1')), parseInt(svgLineElement.getAttribute('y1'))];
   svgLine.toPos = [parseInt(svgLineElement.getAttribute('x2')), parseInt(svgLineElement.getAttribute('y2'))];
-  angleValueElement.textContent = svgLine.angle;
-
-  // Start capture.
-  Capture.cameraStartup();
-  pausebutton.addEventListener('click', toggleCameraStatus, false);
 }
-
 
 function toggleCameraStatus(ev) {
   ev.preventDefault();

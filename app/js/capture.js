@@ -8,38 +8,54 @@ var videoElement = document.getElementById('video'),
     isCameraAvailable = false,
     isStreaming = false,
     cameraDevice = null,
-    cameraControl = null;  // Camera control.
+    cameraControl = null,  // Camera control.
+    cameraRotation = 0;
 
-function cameraStartup() {
+var videoSize = {width: 480, height: 320};  // 3:2
+
+function cameraStartup(windowSize) {
   // For camera area.
   if (!navigator.mozCameras) {
     console.log("navigator.mozCamera not supported.");
     return false;
   }
+
   var cameras = window.navigator.mozCameras;
-  cameraDevice = cameras.getListOfCameras()[0];
+  cameraDevice = cameras.getListOfCameras()[0];  // Back camera.
+
+  switch (windowSize.w) {
+    case 360:  // 4/3
+      videoSize.width = 480;
+      videoSize.height = 360;
+      break;
+    case 320:  // 3:2
+      videoSize.width = 480;
+      videoSize.height = 320;
+      break;
+    default:
+  }
+
   var cameraConfig = {
     mode: 'picture',
     recorderProfile: 'jpg',
-    previewSize: {
-      width: 480,
-      height: 320
-    }
+    previewSize: videoSize
   };
   cameras.getCamera(cameraDevice, cameraConfig, onAccessCamera, onError);
-
-  if (cameraControl) {
-    cameraControl.onclose = onCloseCamera;
-    return true;
-  }
 }
 
 function onAccessCamera(camera) {
-  cameraControl = camera;
   isCameraAvailable = true;
-  videoElement.mozSrcObject = camera;
-  videoElement.play();
+  cameraControl = camera;
+  cameraRotation = cameraControl.sensorAngle;
+  cameraControl.onClosed = onClosedCamera;
+  console.log(cameraControl);
+
+  adjustVideoArea();
+
+  // Play.
   isStreaming = true;
+  videoElement.mozSrcObject = cameraControl;
+  videoElement.play();
 }
 
 function onError(err) {
@@ -47,27 +63,67 @@ function onError(err) {
   console.error(err);
 }
 
+function adjustVideoArea() {
+  videoElement.style.width = videoSize.width + 'px';
+  videoElement.style.height = videoSize.height + 'px';
+
+  var transformOrigin = '',
+      rotate = '',
+      translateX = '';
+  var displayRatio = Math.round((videoSize.width / videoSize.height) * 100) / 100;
+  if (cameraRotation === 90 || cameraRotation === 270) {
+    switch(displayRatio) {
+      case 1.77:  // 16:9
+        transformOrigin = 'transform-origin:28.125% 50%;';
+        if (cameraRotation === 270) {
+          translateX = 'translateX(-43.75%)';
+        }
+        break;
+      case 1.33:  // 4:3
+        transformOrigin = 'transform-origin:37.5% 50%;';
+        if (cameraRotation === 270) {
+          translateX = 'translateX(-25%)';
+        }
+        break;
+      case 1.50:  // 3:2
+        transformOrigin = 'transform-origin:33.3% 50%;';
+        if (cameraRotation === 270) {
+          translateX = 'translateX(-33.3%)';
+        }
+        break;
+      default:
+    }
+  } else {
+    transformOrigin = 'transform-origin:50% 50%;';
+  }
+  rotate = 'rotate(' + cameraRotation + 'deg) ';
+  videoElement.style.cssText += transformOrigin + 'transform:' + rotate + translateX + ';';
+  //console.log('adjustVideoArea()', displayRatio, videoElement.style.cssText);
+}
+
+
 function cameraPauseResume() {
   if (isStreaming === true) {
     if (cameraControl) {
       var pictureOptions = {
-        rotation: 90,
-        pictureSize: cameraControl.capabilities.pictureSizes[7],  // W800, H600
-        fileFormat: cameraControl.capabilities.fileFormats[0]  // jpeg
+        rotation: cameraRotation,
+        //fileFormat: cameraControl.capabilities.fileFormats[0]  // jpeg
+        pictureSize: null  // Default size.
       };
       //cameraControl.autoFocus(function() { cameraControl.takePicture() });
       cameraControl.takePicture(pictureOptions, onPictureTaken);
     }
     videoElement.pause();
-    return (isStreaming = false);
+    isStreaming = false;
   } else {
     if (cameraControl) {
       //cameraControl.effect = cameraControl.capabilities.effects[0]; // none
       cameraControl.resumePreview();
     }
     videoElement.play();
-    return (isStreaming = true);
+    isStreaming = true;
   }
+  return isStreaming;
 }
 
 function onPictureTaken(blob) {
@@ -82,7 +138,7 @@ function cameraRelease() {
   }
 }
 
-function onCloseCamera(ev) {
+function onClosedCamera(ev) {
  console.log('camera onClose:', ev.reason);
  if (isStreaming === true) {
    videoElement.pause();
