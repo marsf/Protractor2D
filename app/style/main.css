@@ -7,6 +7,7 @@ html {
 }
 
 body {
+  -moz-user-select: none;
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -81,6 +82,7 @@ body {
 }
 
 #angleInfo {
+  -moz-user-select: text;
   font-size: 2em;
 }
 #angleValue {
