@@ -5,26 +5,28 @@ var Capture = (function() {
 'use strict';
 
 var videoElement = document.getElementById('video'),
-    isCameraAvailable = false,
-    isStreaming = false,
     cameraDevice = null,
     cameraControl = null,  // Camera control.
-    cameraRotation = 0;
+    isCameraAvailable = false,
+    isStreaming = false;
 
 var videoSize = {width: 480, height: 320};  // 3:2
+
+var usePromise = false; // FxOS 2.2: true
 
 function cameraStartup(windowSize) {
   // For camera area.
   if (!navigator.mozCameras) {
-    console.log("navigator.mozCamera not supported.");
+    console.log("navigator.mozCameras is not supported.");
     return false;
   }
-
   var cameras = window.navigator.mozCameras;
-  cameraDevice = cameras.getListOfCameras()[0];  // Back camera.
+
+  // Some mozCameras API uses promise in Firefox OS 2.2 (Gecko 37) or later.
+  usePromise = (cameras.getCamera.length === 1);
 
   switch (windowSize.w) {
-    case 360:  // 4/3
+    case 360:  // 4:3
       videoSize.width = 480;
       videoSize.height = 360;
       break;
@@ -35,22 +37,26 @@ function cameraStartup(windowSize) {
     default:
   }
 
+  cameraDevice = cameras.getListOfCameras()[0];  // Back camera.
   var cameraConfig = {
     mode: 'picture',
-    recorderProfile: 'jpg',
     previewSize: videoSize
   };
-  cameras.getCamera(cameraDevice, cameraConfig, onAccessCamera, onError);
+  if (usePromise) {
+    cameras.getCamera(cameraDevice, cameraConfig).then(onAccessCamera, onError);
+  } else {
+    cameras.getCamera(cameraDevice, cameraConfig, onAccessCamera, onError);
+  }
 }
 
-function onAccessCamera(camera) {
+function onAccessCamera(cameraObj) {
+  //console.log(cameraObj);
   isCameraAvailable = true;
-  cameraControl = camera;
-  cameraRotation = cameraControl.sensorAngle;
-  cameraControl.onClosed = onClosedCamera;
-  console.log(cameraControl);
+  cameraControl = (cameraObj.hasOwnProperty('camera')) ? cameraObj.camera : cameraObj;
+  cameraControl.onclose = onCloseCamera;
+  //cameraControl.onpicture = onPictureTaken;
 
-  adjustVideoArea();
+  adjustVideoArea(cameraControl.sensorAngle);
 
   // Play.
   isStreaming = true;
@@ -63,7 +69,8 @@ function onError(err) {
   console.error(err);
 }
 
-function adjustVideoArea() {
+
+function adjustVideoArea(cameraRotation) {
   videoElement.style.width = videoSize.width + 'px';
   videoElement.style.height = videoSize.height + 'px';
 
@@ -85,7 +92,7 @@ function adjustVideoArea() {
           translateX = 'translateX(-25%)';
         }
         break;
-      case 1.50:  // 3:2
+      case 1.5:  // 3:2
         transformOrigin = 'transform-origin:33.3% 50%;';
         if (cameraRotation === 270) {
           translateX = 'translateX(-33.3%)';
@@ -98,7 +105,7 @@ function adjustVideoArea() {
   }
   rotate = 'rotate(' + cameraRotation + 'deg) ';
   videoElement.style.cssText += transformOrigin + 'transform:' + rotate + translateX + ';';
-  //console.log('adjustVideoArea()', displayRatio, videoElement.style.cssText);
+  //console.log('adjustVideoArea()', cameraRotation, displayRatio, videoElement.style.cssText);
 }
 
 
@@ -106,12 +113,15 @@ function cameraPauseResume() {
   if (isStreaming === true) {
     if (cameraControl) {
       var pictureOptions = {
-        rotation: cameraRotation,
+        rotation: cameraControl.sensorAngle,
         //fileFormat: cameraControl.capabilities.fileFormats[0]  // jpeg
         pictureSize: null  // Default size.
       };
-      //cameraControl.autoFocus(function() { cameraControl.takePicture() });
-      cameraControl.takePicture(pictureOptions, onPictureTaken);
+      if (usePromise) {
+        cameraControl.takePicture(pictureOptions).then(onPictureTaken);
+      } else {
+        cameraControl.takePicture(pictureOptions, onPictureTaken);
+      }
     }
     videoElement.pause();
     isStreaming = false;
@@ -133,12 +143,12 @@ function onPictureTaken(blob) {
 
 function cameraRelease() {
   if (cameraControl) {
-    cameraControl.release();
+    cameraControl.release();  // Promise
     console.log('camera is released.');
   }
 }
 
-function onClosedCamera(ev) {
+function onCloseCamera(ev) {
  console.log('camera onClose:', ev.reason);
  if (isStreaming === true) {
    videoElement.pause();
