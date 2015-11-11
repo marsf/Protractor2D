@@ -10,7 +10,7 @@ var videoElement = document.getElementById('video'),
     isCameraAvailable = false,
     isStreaming = false;
 
-var videoSize = {width: 480, height: 320};  // 3:2
+var videoSize = {width: 0, height: 0};
 
 var usePromise = false; // FxOS 2.2: true
 
@@ -22,7 +22,7 @@ function cameraStartup(windowSize) {
   }
   var cameras = window.navigator.mozCameras;
 
-  // Some mozCameras API uses promise in Firefox OS 2.2 (Gecko 37) or later.
+  // The mozCameras API uses promise in Firefox OS 2.2+ (Gecko 37.0+).
   usePromise = (cameras.getCamera.length === 1);
 
   switch (windowSize.w) {
@@ -35,6 +35,8 @@ function cameraStartup(windowSize) {
       videoSize.height = 320;
       break;
     default:
+      videoSize.width = 384;
+      videoSize.height = 288;
   }
 
   cameraDevice = cameras.getListOfCameras()[0];  // Back camera.
@@ -47,6 +49,7 @@ function cameraStartup(windowSize) {
   } else {
     cameras.getCamera(cameraDevice, cameraConfig, onAccessCamera, onError);
   }
+  return true;
 }
 
 function onAccessCamera(cameraObj) {
@@ -105,7 +108,7 @@ function adjustVideoArea(cameraRotation) {
   }
   rotate = 'rotate(' + cameraRotation + 'deg) ';
   videoElement.style.cssText += transformOrigin + 'transform:' + rotate + translateX + ';';
-  //console.log('adjustVideoArea()', cameraRotation, displayRatio, videoElement.style.cssText);
+  console.log('adjustVideoArea() - ', 'sensorAngle:', cameraRotation, 'Ratio:', displayRatio, 'videoElement:', videoElement.style.cssText);
 }
 
 

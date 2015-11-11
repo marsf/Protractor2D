@@ -81,7 +81,7 @@ function startup() {
   swipe.start();
 
   var windowSize = {
-    // Flame: W320xH539, Fx0: W360xH609 ?
+    // Flame: W320xH539, Fx0: W360xH609, Alcatel: W320xH449 ?
     w: window.innerWidth,
     h: window.innerHeight,
   };
@@ -90,9 +90,9 @@ function startup() {
   angleValueElement.textContent = svgLine.angle;
 
   // Camera setup.
-  Capture.cameraStartup(windowSize);
-  pausebutton.addEventListener('click', toggleCameraStatus, false);
-
+  if (Capture.cameraStartup(windowSize)) {
+    pausebutton.addEventListener('click', toggleCameraStatus, false);
+  }
 }
 
 
