@@ -80,17 +80,11 @@ function startup() {
   swipe.onswiped  = onSwipeEnd;
   swipe.start();
 
-  var windowSize = {
-    // Flame: W320xH539, Fx0: W360xH609, Alcatel: W320xH449 ?
-    w: window.innerWidth,
-    h: window.innerHeight,
-  };
-
   adjustContentArea();
   angleValueElement.textContent = svgLine.angle;
 
   // Camera setup.
-  if (Capture.cameraStartup(windowSize)) {
+  if (Capture.cameraStartup()) {
     pausebutton.addEventListener('click', toggleCameraStatus, false);
   }
 }
@@ -197,7 +191,7 @@ function onSwiping(ev) {
 }
 
 
-function onSwipeEnd(ev) {
+function onSwipeEnd() {
   if (swipeItem.target === null) {
     console.log('swipe target is null.');
     return;

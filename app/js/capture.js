@@ -14,10 +14,10 @@ var videoSize = {width: 0, height: 0};
 
 var usePromise = false; // FxOS 2.2: true
 
-function cameraStartup(windowSize) {
+function cameraStartup() {
   // For camera area.
   if (!navigator.mozCameras) {
-    console.log("navigator.mozCameras is not supported.");
+    console.log('navigator.mozCameras is not supported.');
     return false;
   }
   var cameras = window.navigator.mozCameras;
@@ -25,7 +25,13 @@ function cameraStartup(windowSize) {
   // The mozCameras API uses promise in Firefox OS 2.2+ (Gecko 37.0+).
   usePromise = (cameras.getCamera.length === 1);
 
-  switch (windowSize.w) {
+  // window.inner sizes:
+  // Flame: W320xH539, Fx0: W360xH609, Alcatel: W320xH449 ?
+  switch (window.innerWidth) {
+    case 480:  // 16:9
+      videoSize.width = 854;
+      videoSize.height = 480;
+      break;
     case 360:  // 4:3
       videoSize.width = 480;
       videoSize.height = 360;
