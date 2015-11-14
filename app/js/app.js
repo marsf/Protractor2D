@@ -4,8 +4,7 @@
 (function() {
 'use strict';
 
-var contentareaElement = document.getElementById('contentarea'),
-    contentAreaPadding = 0,
+var contentAreaPadding = 0,
     contentAreaSize = { w: 320, h: 480 },
     contentAreaOffset = { x: 0, y: 0 },
     svgareaElement = document.getElementById('svg_area'),
@@ -91,13 +90,19 @@ function startup() {
 
 
 function adjustContentArea() {
+  var contentareaElement = document.getElementById('contentarea'),
+      ctrlAreaElement = document.getElementById('controlarea'),
+      contentAreaHeight = ctrlAreaElement.offsetTop;
+
   // Adjust content area.
   contentAreaPadding = parseInt(svgCircleElement.getAttribute('r'));
   contentAreaSize.w = contentareaElement.clientWidth * 0.9 - contentAreaPadding;
-  contentAreaSize.h = contentareaElement.clientHeight - contentAreaPadding;
+  contentAreaSize.h = contentAreaHeight - contentAreaPadding;
   contentAreaOffset.x = contentareaElement.offsetLeft;
   contentAreaOffset.y = contentareaElement.offsetTop + contentAreaPadding;
-  
+
+  contentareaElement.style.height = contentAreaHeight + 'px';
+
   // Adjust line positions.
   svgXaxisElement.setAttribute('x2', contentAreaSize.w);
   svgLine.offsetY = contentAreaPadding;
