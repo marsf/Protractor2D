@@ -1,7 +1,12 @@
 # Protractor2D
-Firefox OS app to measure the angle (0-180deg) on screen.
+Firefox OS app to measure the angle (0-180deg) on screen using camera preview.
 
-Supported device: Flame, Fx0
+Supported device:
+* Flame
+* KDDI Fx0
+* Geeksphone Peak
+* Alcatel Pixi 3
+
 Firefox OS version: 2.0+
 
 # Presentation data

@@ -91,8 +91,7 @@ function startup() {
 
 function adjustContentArea() {
   var contentareaElement = document.getElementById('contentarea'),
-      ctrlAreaElement = document.getElementById('controlarea'),
-      contentAreaHeight = ctrlAreaElement.offsetTop;
+      contentAreaHeight = document.getElementById('controlarea').offsetTop;
 
   // Adjust content area.
   contentAreaPadding = parseInt(svgCircleElement.getAttribute('r'));
