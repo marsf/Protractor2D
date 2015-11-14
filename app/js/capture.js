@@ -63,7 +63,6 @@ function onAccessCamera(cameraObj) {
   isCameraAvailable = true;
   cameraControl = (cameraObj.hasOwnProperty('camera')) ? cameraObj.camera : cameraObj;
   cameraControl.onclose = onCloseCamera;
-  //cameraControl.onpicture = onPictureTaken;
 
   adjustVideoArea(cameraControl.sensorAngle);
 
@@ -90,19 +89,19 @@ function adjustVideoArea(cameraRotation) {
   if (cameraRotation === 90 || cameraRotation === 270) {
     switch(displayRatio) {
       case 1.77:  // 16:9
-        transformOrigin = 'transform-origin:28.125% 50%;';
+        transformOrigin = '28.125% 50%';
         if (cameraRotation === 270) {
           translateX = 'translateX(-43.75%)';
         }
         break;
       case 1.33:  // 4:3
-        transformOrigin = 'transform-origin:37.5% 50%;';
+        transformOrigin = '37.5% 50%';
         if (cameraRotation === 270) {
           translateX = 'translateX(-25%)';
         }
         break;
       case 1.5:  // 3:2
-        transformOrigin = 'transform-origin:33.3% 50%;';
+        transformOrigin = '33.3% 50%';
         if (cameraRotation === 270) {
           translateX = 'translateX(-33.3%)';
         }
@@ -110,10 +109,11 @@ function adjustVideoArea(cameraRotation) {
       default:
     }
   } else {
-    transformOrigin = 'transform-origin:50% 50%;';
+    transformOrigin = '50% 50%';
   }
   rotate = 'rotate(' + cameraRotation + 'deg) ';
-  videoElement.style.cssText += transformOrigin + 'transform:' + rotate + translateX + ';';
+  videoElement.style.transformOrigin = transformOrigin;
+  videoElement.style.transform = rotate + translateX;
   console.log('adjustVideoArea() - ', 'sensorAngle:', cameraRotation, 'Ratio:', displayRatio, 'videoElement:', videoElement.style.cssText);
 }
 
@@ -149,6 +149,7 @@ function onPictureTaken(blob) {
   //var storage = navigator.getDeviceStorage('pictures');
   //storage.addNamed(blob, 'myImage.jpg');
 }
+
 
 function cameraRelease() {
   if (cameraControl) {
