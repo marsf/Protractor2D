@@ -1,7 +1,7 @@
 {
-  "name": "Protractor2D",
+  "name": "Protractor2D - dev",
   "description": "A tool for measuring the angle on screen.",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "type": "privileged",
   "launch_path": "/index.html",
   "developer": {
